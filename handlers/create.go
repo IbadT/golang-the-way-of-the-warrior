@@ -21,9 +21,8 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if task.ID != uuid.Nil {
+	if task.ID == uuid.Nil {
 		task.ID = uuid.New()
-		task.IsCompleted = false
 	}
 	tasks = append(tasks, task)
 
