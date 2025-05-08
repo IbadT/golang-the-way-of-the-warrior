@@ -11,6 +11,10 @@ import (
 // 3. Добавить `POST` handler, который будет принимать json с полем `task` и записывать его содержимое в нашу переменную.
 // 4. Обновить `GET` handler, чтобы он возвращал “hello, `task` ”
 
+type RequestBody struct {
+	Task string `json:"task"`
+}
+
 type Task struct {
 	ID          uuid.UUID `json:"id"`
 	Title       string    `json:"title"`
@@ -27,20 +31,20 @@ func main() {
 		return c.JSON(http.StatusOK, "hello, 'task'")
 	})
 
-	// xh POST http://localhost:8080/tasks title="Новая задача"
+	// xh POST http://localhost:8080/tasks task="Новая задача"
 	e.POST("/tasks", func(c echo.Context) error {
-		var task Task
-		if err := c.Bind(&task); err != nil {
+		var body RequestBody
+		if err := c.Bind(&body); err != nil {
 			return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid data"})
 		}
-		if task.ID == uuid.Nil {
-			task.ID = uuid.New()
-		}
-		tasks = append(tasks, Task{
-			ID:          task.ID,
-			Title:       task.Title,
+
+		task := Task{
+			ID:          uuid.New(),
+			Title:       body.Task,
 			IsCompleted: false,
-		})
+		}
+
+		tasks = append(tasks, task)
 		return c.JSON(http.StatusCreated, task)
 	})
 
