@@ -1,53 +1,34 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/google/uuid"
+	"github.com/IbadT/golang-the-way-of-the-warrior.git/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// 2. Добавить глобальную переменную `task`
-// 3. Добавить `POST` handler, который будет принимать json с полем `task` и записывать его содержимое в нашу переменную.
-// 4. Обновить `GET` handler, чтобы он возвращал “hello, `task` ”
-
-type RequestBody struct {
-	Task string `json:"task"`
-}
-
-type Task struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	IsCompleted bool      `json:"is_completed"`
-}
-
-var tasks = []Task{}
+// 1. Реализовать `PATCH` ручку, которая будет обновлять `task` *(Саму задачу или ее статус)* по `ID`
+// 2. Реализовать `DELETE` ручку, которая будет удалять `task` по `ID`
 
 func main() {
 	e := echo.New()
 
 	// xh http://localhost:8080/tasks
-	e.GET("/tasks", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, "hello, 'task'")
-	})
+	e.GET("/tasks", handlers.GetTasks)
+	// xh http://localhost:8080/tasks/{id}
+	e.GET("/tasks/:id", handlers.GetTaskById)
+	// xh "http://localhost:8080/tasks?is_completed=true"
+	// e.GET("/tasks", handlers.GetCompletedTasks)
 
 	// xh POST http://localhost:8080/tasks task="Новая задача"
-	e.POST("/tasks", func(c echo.Context) error {
-		var body RequestBody
-		if err := c.Bind(&body); err != nil {
-			return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid data"})
-		}
+	e.POST("/tasks", handlers.CreateTask)
 
-		task := Task{
-			ID:          uuid.New(),
-			Title:       body.Task,
-			IsCompleted: false,
-		}
+	// xh patch http://localhost:8080/tasks/{id}
+	e.PATCH("/tasks/:id", handlers.UpdateTaskCompletedById)
+	// xh put http://localhost:8080/tasks/{id} task="Обновленная задача"
+	e.PUT("/tasks/:id", handlers.UpdateTitleTaskById)
 
-		tasks = append(tasks, task)
-		return c.JSON(http.StatusCreated, task)
-	})
+	// xh delete http://localhost:8080/tasks/{id}
+	e.DELETE("/tasks/:id", handlers.DeleteTaskById)
 
 	e.Use(middleware.Logger())
 	e.Start(":8080")
