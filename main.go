@@ -16,8 +16,6 @@ func main() {
 	e.GET("/tasks", handlers.GetTasks)
 	// xh http://localhost:8080/tasks/{id}
 	e.GET("/tasks/:id", handlers.GetTaskById)
-	// xh "http://localhost:8080/tasks?is_completed=true"
-	// e.GET("/tasks", handlers.GetCompletedTasks)
 
 	// xh POST http://localhost:8080/tasks task="Новая задача"
 	e.POST("/tasks", handlers.CreateTask)
