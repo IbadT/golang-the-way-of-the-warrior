@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // 2. Добавить глобальную переменную `task`
@@ -48,5 +49,6 @@ func main() {
 		return c.JSON(http.StatusCreated, task)
 	})
 
+	e.Use(middleware.Logger())
 	e.Start(":8080")
 }
