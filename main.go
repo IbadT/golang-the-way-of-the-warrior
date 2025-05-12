@@ -195,9 +195,11 @@ func DeleteTaskById(c echo.Context) error {
 }
 
 func main() {
+	initDB()
 	e := echo.New()
 
 	// xh http://localhost:8080/tasks
+	// xh http://localhost:8080/tasks?is_done=true
 	e.GET("/tasks", GetTasks)
 	// xh http://localhost:8080/tasks/{id}
 	e.GET("/tasks/:id", GetTaskById)
@@ -214,6 +216,6 @@ func main() {
 	e.DELETE("/tasks/:id", DeleteTaskById)
 
 	e.Use(middleware.Logger())
-	initDB()
+
 	e.Start(":8080")
 }
