@@ -33,6 +33,7 @@ func (s *taskService) CreateTask(body RequestBody) (Task, error) {
 		Title:  body.Title,
 		IsDone: false,
 	}
+
 	if err := s.repo.CreateTask(task); err != nil {
 		return Task{}, err
 	}

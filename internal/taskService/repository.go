@@ -52,6 +52,7 @@ func (r *taskRepository) UpdateTaskCompletedById(id uuid.UUID, task Task) error 
 func (r *taskRepository) UpdateTitleTaskById(id uuid.UUID, task Task) error {
 	return r.db.Save(&task).Error
 }
+
 func (r *taskRepository) DeleteTaskById(id uuid.UUID) error {
 	return r.db.Delete(&Task{}, id).Error
 }

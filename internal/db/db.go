@@ -3,7 +3,6 @@ package db
 import (
 	"log"
 
-	taskservice "github.com/IbadT/golang-the-way-of-the-warrior.git/internal/taskService"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,10 +17,6 @@ func InitDB() (*gorm.DB, error) {
 
 	if err != nil {
 		log.Fatalf("Could not connect to database: %v", err)
-	}
-
-	if err := DB.AutoMigrate(&taskservice.Task{}); err != nil {
-		log.Fatalf("Could not migrate: %v", err)
 	}
 
 	return DB, nil
