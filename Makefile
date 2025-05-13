@@ -12,4 +12,5 @@ migrate-down:
 	${MIGRATE} down
 
 run:
-	go run cmd/main.go
+	@docker compose up --build -d
+	@go run cmd/main.go
