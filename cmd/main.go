@@ -30,5 +30,5 @@ func main() {
 	strictHandler := tasks.NewStrictHandler(handler, nil)
 	tasks.RegisterHandlers(e, strictHandler)
 
-	e.Start(":8080")
+	log.Fatal(e.Start(":8080"))
 }

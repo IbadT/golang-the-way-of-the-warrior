@@ -22,6 +22,9 @@ gen:
 # go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
 
+lint:
+	golangci-lint run --color=always
+
 run:
 	@docker compose up --build -d
 	@go run cmd/main.go
