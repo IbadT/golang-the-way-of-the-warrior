@@ -1,18 +1,16 @@
 package taskservice
 
 import (
-	"strconv"
-
 	"github.com/google/uuid"
 )
 
 type TaskService interface {
 	CreateTask(body RequestBody) (Task, error)
-	GetTasks(isDoneQuery string) ([]Task, error)
-	GetTaskById(idStr string) (Task, error)
-	UpdateTaskCompletedById(idStr string) (Task, error)
-	UpdateTitleTaskById(idStr string, body RequestBody) (Task, error)
-	DeleteTaskById(idStr string) error
+	GetTasks(isDoneQuery *bool) ([]Task, error)
+	GetTaskById(id uuid.UUID) (Task, error)
+	UpdateTaskCompletedById(id uuid.UUID) (Task, error)
+	UpdateTitleTaskById(id uuid.UUID, body RequestBody) (Task, error)
+	DeleteTaskById(id uuid.UUID) error
 }
 
 type taskService struct {
@@ -40,31 +38,18 @@ func (s *taskService) CreateTask(body RequestBody) (Task, error) {
 	return task, nil
 }
 
-func (s *taskService) GetTasks(isDoneQuery string) ([]Task, error) {
-	if isDoneQuery != "" {
-		isDone, err := strconv.ParseBool(isDoneQuery)
-		if err != nil {
-			return []Task{}, err
-		}
-		return s.repo.GetTasksByCompleted(isDone)
+func (s *taskService) GetTasks(isDoneQuery *bool) ([]Task, error) {
+	if isDoneQuery == nil {
+		return s.repo.GetTasks()
 	}
-	return s.repo.GetTasks()
+	return s.repo.GetTasksByCompleted(*isDoneQuery)
 }
 
-func (s *taskService) GetTaskById(idStr string) (Task, error) {
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		return Task{}, err
-	}
+func (s *taskService) GetTaskById(id uuid.UUID) (Task, error) {
 	return s.repo.GetTaskById(id)
 }
 
-func (s *taskService) UpdateTaskCompletedById(idStr string) (Task, error) {
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		return Task{}, err
-	}
-
+func (s *taskService) UpdateTaskCompletedById(id uuid.UUID) (Task, error) {
 	task, err := s.repo.GetTaskById(id)
 	if err != nil {
 		return Task{}, err
@@ -77,13 +62,8 @@ func (s *taskService) UpdateTaskCompletedById(idStr string) (Task, error) {
 	return task, nil
 }
 
-func (s *taskService) UpdateTitleTaskById(idStr string, body RequestBody) (Task, error) {
+func (s *taskService) UpdateTitleTaskById(id uuid.UUID, body RequestBody) (Task, error) {
 	if err := validate.Struct(body); err != nil {
-		return Task{}, err
-	}
-
-	id, err := uuid.Parse(idStr)
-	if err != nil {
 		return Task{}, err
 	}
 
@@ -99,10 +79,6 @@ func (s *taskService) UpdateTitleTaskById(idStr string, body RequestBody) (Task,
 	return task, nil
 }
 
-func (s *taskService) DeleteTaskById(idStr string) error {
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		return err
-	}
+func (s *taskService) DeleteTaskById(id uuid.UUID) error {
 	return s.repo.DeleteTaskById(id)
 }

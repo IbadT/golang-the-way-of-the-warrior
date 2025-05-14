@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"net/http"
+	"context"
 
 	taskservice "github.com/IbadT/golang-the-way-of-the-warrior.git/internal/taskService"
-	"github.com/labstack/echo/v4"
+	"github.com/IbadT/golang-the-way-of-the-warrior.git/internal/web/tasks"
 )
 
 type TaskHandler struct {
@@ -15,105 +15,108 @@ func NewTaskHandler(s taskservice.TaskService) *TaskHandler {
 	return &TaskHandler{service: s}
 }
 
-// GET
-func (h *TaskHandler) GetTasks(c echo.Context) error {
-	queryParams := c.QueryParams()
-
-	if len(queryParams) > 0 && queryParams.Get("is_done") == "" {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error":   "Invalid query param",
-			"message": "Нужно передать только параметр is_done",
-		})
+// GetTasks implements tasks.StrictServerInterface.
+func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
+	var isDone *bool
+	if request.Params.IsDone != nil {
+		isDone = request.Params.IsDone
 	}
-
-	isDoneQuery := c.QueryParam("is_done")
-	tasks, err := h.service.GetTasks(isDoneQuery)
-
+	allTasks, err := h.service.GetTasks(isDone)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not get Tasks",
-		})
+		return nil, err
 	}
 
-	return c.JSON(http.StatusOK, tasks)
+	response := tasks.GetTasks200JSONResponse{}
+
+	for _, tsk := range allTasks {
+		task := tasks.Task{
+			Id:     &tsk.ID,
+			Title:  &tsk.Title,
+			IsDone: &tsk.IsDone,
+		}
+		response = append(response, task)
+	}
+
+	return response, nil
 }
 
-func (h *TaskHandler) GetTaskById(c echo.Context) error {
-	idStr := c.Param("id")
-
-	task, err := h.service.GetTaskById(idStr)
+// GetTaskByID implements tasks.StrictServerInterface.
+func (h *TaskHandler) GetTaskByID(ctx context.Context, request tasks.GetTaskByIDRequestObject) (tasks.GetTaskByIDResponseObject, error) {
+	idParam := request.Id
+	task, err := h.service.GetTaskById(idParam)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not find task",
-		})
+		return nil, err
 	}
-	return c.JSON(http.StatusOK, task)
+	response := tasks.GetTaskByID200JSONResponse{
+		Id:     &task.ID,
+		Title:  &task.Title,
+		IsDone: &task.IsDone,
+	}
+	return response, nil
 }
 
-// POST
-func (h *TaskHandler) CreateTask(c echo.Context) error {
-	var body taskservice.RequestBody
-	if err := c.Bind(&body); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": "Invalid data",
-		})
-	}
+// PostTasks implements tasks.StrictServerInterface.
+func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
+	body := request.Body
 
-	task, err := h.service.CreateTask(body)
+	taskToCreate := taskservice.RequestBody{
+		Title: body.Title,
+	}
+	createdTask, err := h.service.CreateTask(taskToCreate)
+
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not create task",
-		})
+		return nil, err
 	}
 
-	return c.JSON(http.StatusCreated, task)
+	response := tasks.PostTasks201JSONResponse{
+		Id:     &createdTask.ID,
+		Title:  &createdTask.Title,
+		IsDone: &createdTask.IsDone,
+	}
+	return response, nil
 }
 
-// PATCH
-func (h *TaskHandler) UpdateTaskCompletedById(c echo.Context) error {
-	idStr := c.Param("id")
-
-	task, err := h.service.UpdateTaskCompletedById(idStr)
+// UpdateTaskCompletedById implements tasks.StrictServerInterface.
+func (h *TaskHandler) UpdateTaskCompletedById(ctx context.Context, request tasks.UpdateTaskCompletedByIdRequestObject) (tasks.UpdateTaskCompletedByIdResponseObject, error) {
+	id := request.Id
+	task, err := h.service.UpdateTaskCompletedById(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not update task",
-		})
+		return nil, err
 	}
-
-	return c.JSON(http.StatusOK, task)
+	response := tasks.UpdateTaskCompletedById200JSONResponse{
+		Id:     &task.ID,
+		Title:  &task.Title,
+		IsDone: &task.IsDone,
+	}
+	return response, nil
 }
 
-// PUT
-func (h *TaskHandler) UpdateTitleTaskById(c echo.Context) error {
-	idStr := c.Param("id")
-
-	var body taskservice.RequestBody
-	if err := c.Bind(&body); err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error":   "Invalid request data",
-			"message": "Проверьте введенные данные",
-		})
+// UpdateTaskByID implements tasks.StrictServerInterface.
+func (h *TaskHandler) UpdateTaskByID(ctx context.Context, request tasks.UpdateTaskByIDRequestObject) (tasks.UpdateTaskByIDResponseObject, error) {
+	id := request.Id
+	body := request.Body
+	taskToUpdateTitle := taskservice.RequestBody{
+		Title: body.Title,
 	}
-
-	task, err := h.service.UpdateTitleTaskById(idStr, body)
+	task, err := h.service.UpdateTitleTaskById(id, taskToUpdateTitle)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not update task title",
-		})
+		return nil, err
 	}
-
-	return c.JSON(http.StatusOK, task)
+	response := tasks.UpdateTaskByID200JSONResponse{
+		Id:     &task.ID,
+		Title:  &task.Title,
+		IsDone: &task.IsDone,
+	}
+	return response, nil
 }
 
-// DELETE
-func (h *TaskHandler) DeleteTaskById(c echo.Context) error {
-	idStr := c.Param("id")
-
-	if err := h.service.DeleteTaskById(idStr); err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": "Could not delete task",
-		})
+// DeleteTaskById implements tasks.StrictServerInterface.
+func (h *TaskHandler) DeleteTaskById(ctx context.Context, request tasks.DeleteTaskByIdRequestObject) (tasks.DeleteTaskByIdResponseObject, error) {
+	id := request.Id
+	err := h.service.DeleteTaskById(id)
+	if err != nil {
+		return nil, err
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	return tasks.DeleteTaskById204Response{}, nil
 }
