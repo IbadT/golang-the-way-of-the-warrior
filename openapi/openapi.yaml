@@ -1,0 +1,308 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: API
+paths:
+  /tasks:
+    get:
+      summary: Get All Tasks
+      operationId: GetTasks
+      tags:
+        - tasks
+      parameters:
+        - in: query
+          name: is_done
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Finded Tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        
+    post:
+      summary: Create Task
+      operationId: CreateTask
+      tags:
+        - tasks
+      requestBody:
+        description: Task Data For Create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTaskBody'
+      responses:
+        '201':
+          description: The Task Was Successfully Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+      
+  /tasks/{id}:
+    get:
+      summary: Get Task By ID
+      operationId: GetTaskById
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User By ID Was Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+      
+    patch: 
+      summary: Update Task's Completed
+      operationId: UpdateTaskCompletedById
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Updated Completed Task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+      
+    put:
+      summary: Update Task's Title
+      operationId: UpdateTitleTaskById
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: string
+            format: uuid
+      requestBody:
+        description: Title to Update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestTaskBody'
+      responses:
+        '200':
+          description: Task Was Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+      
+    delete:
+      summary: Delete Task By ID
+      operationId: DeleteTaskById
+      tags:
+        - tasks
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Task Was Successfully Deleted
+      
+  
+  /users:
+    get:
+      summary: Get All Users
+      operationId: GetUsers
+      tags:
+        - users
+      responses:
+        '200':
+          description: All Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      
+    post:
+      summary: Create User
+      operationId: CreateUser
+      tags:
+        - users
+      requestBody:
+        description: The User To Create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User Was Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      
+  /users/{id}:
+    get:
+      summary: Get User By ID
+      operationId: GetUserByID
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User Was Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      
+    patch:
+      summary: Update User's password
+      operationId: UpdateUserPassword
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The New Password To Update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserPasswordRequest'
+      responses:
+        '200':
+          description: The Password Was Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      
+    put:
+      summary: Update User
+      operationId: UpdateUser
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: User Params For Update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: User Params Was Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      
+    delete:
+      summary: Delete User By ID
+      operationId: DeleteUserByID
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User Was Successfully Deleted
+      
+
+
+
+
+
+components:
+  schemas:
+    
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        is_done:
+          type: boolean
+    
+    RequestTaskBody:
+      type: object
+      properties:
+        title:
+          type: string
+    
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        password:
+          type: string
+
+    UserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    UpdateUserPasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string

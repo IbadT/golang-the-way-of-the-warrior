@@ -1,1 +1,14 @@
 # golang-the-way-of-the-warrior
+
+1. Создать новую миграцию `Users` . Наш пользователь должен иметь поля `ID`, `Email`, `Password`, `DeletedAt`, `CreatedAt`, `UpdatedAt`
+2. Создать папку `userService`, в которой будут находиться файлы `orm`, `repository` и `service`
+3. Добавить описание 4 ручек в `openapi.yaml` - `GetUsers` (выводит всех пользователей), `PostUser` (создать нового пользователя) `PatchUserByID` (Отредактировать поля user по его ID) и `DeleteUserByID`
+4. Добавить строку для генерации тега `users` в `makefile`, сгенерировать
+5. В handlers создать `userHandlers.go` и реализовать все 4 ручки
+6. Обновить `main.go`, переименовать текущие `repo`, `service` и `handlers` на `tasksRepo`, `TasksService` итд, добавить `userRepo`, `userService`, `UserHandlers`
+7. Проверить код на отсутствие ошибок при помощи линтера. В случае выявления ошибок - исправить их :)
+8. Создать в `Postman` папку `tasks` и папку `user`, разделить ручки по папкам. Протестировать их
+1. 
+1. 
+1. 
+1. добавить mutex
