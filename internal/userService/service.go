@@ -2,6 +2,7 @@ package userservice
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -58,11 +59,13 @@ func (s *userService) UpdateUser(id uuid.UUID, body UserRequest) (User, error) {
 	if err != nil {
 		return User{}, err
 	}
+	fmt.Println(user) // {0fa9eb1e-550b-45d9-a181-53aef48ca5b9 Add your name in the body 1111111}
 	user.Email = body.Email
 	user.Password = body.Password
 	if err := s.repo.UpdateUser(user); err != nil {
 		return User{}, err
 	}
+
 	return user, nil
 }
 

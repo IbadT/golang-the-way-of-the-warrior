@@ -96,6 +96,7 @@ func (u *UserHandler) UpdateUser(ctx context.Context, request users.UpdateUserRe
 	}
 
 	response := users.UpdateUser200JSONResponse{
+		Id:       &user.ID,
 		Email:    &user.Email,
 		Password: &user.Password,
 	}
