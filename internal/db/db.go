@@ -17,5 +17,6 @@ func InitDB() (*gorm.DB, error) {
 	if err != nil {
 		log.Fatalf("Could not connect to database: %v", err)
 	}
+
 	return DB, err
 }

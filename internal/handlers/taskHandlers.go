@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 
 	taskservice "github.com/IbadT/golang-the-way-of-the-warrior.git/internal/taskService"
 	"github.com/IbadT/golang-the-way-of-the-warrior.git/internal/web/tasks"
@@ -19,9 +18,12 @@ func NewTaskHandler(s taskservice.TaskService) *TaskHandler {
 // CreateTask implements tasks.StrictServerInterface.
 func (t *TaskHandler) CreateTask(ctx context.Context, request tasks.CreateTaskRequestObject) (tasks.CreateTaskResponseObject, error) {
 	body := request.Body
+
 	taskToCreate := taskservice.RequestTaskBody{
-		Title: *body.Title,
+		UserID: *body.UserId,
+		Title:  *body.Title,
 	}
+
 	task, err := t.service.CreateTask(taskToCreate)
 	if err != nil {
 		return nil, err
@@ -31,6 +33,31 @@ func (t *TaskHandler) CreateTask(ctx context.Context, request tasks.CreateTaskRe
 		Id:     &task.ID,
 		Title:  &task.Title,
 		IsDone: &task.IsDone,
+		UserId: &task.UserID,
+	}
+
+	return response, nil
+}
+
+// GetTasksByUserID implements tasks.StrictServerInterface.
+func (t *TaskHandler) GetTasksByUserID(ctx context.Context, request tasks.GetTasksByUserIDRequestObject) (tasks.GetTasksByUserIDResponseObject, error) {
+	userId := request.UserId
+
+	allTasks, err := t.service.GetTasksByUserID(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	response := tasks.GetTasksByUserID200JSONResponse{}
+
+	for _, tsk := range allTasks {
+		task := tasks.Task{
+			Id:     &tsk.ID,
+			Title:  &tsk.Title,
+			IsDone: &tsk.IsDone,
+			UserId: &tsk.UserID,
+		}
+		response = append(response, task)
 	}
 
 	return response, nil
@@ -39,6 +66,7 @@ func (t *TaskHandler) CreateTask(ctx context.Context, request tasks.CreateTaskRe
 // DeleteTaskById implements tasks.StrictServerInterface.
 func (t *TaskHandler) DeleteTaskById(ctx context.Context, request tasks.DeleteTaskByIdRequestObject) (tasks.DeleteTaskByIdResponseObject, error) {
 	id := request.Id
+
 	err := t.service.DeleteTaskById(id)
 	if err != nil {
 		return nil, err
@@ -50,14 +78,17 @@ func (t *TaskHandler) DeleteTaskById(ctx context.Context, request tasks.DeleteTa
 // GetTaskById implements tasks.StrictServerInterface.
 func (t *TaskHandler) GetTaskById(ctx context.Context, request tasks.GetTaskByIdRequestObject) (tasks.GetTaskByIdResponseObject, error) {
 	id := request.Id
-	title, err := t.service.GetTaskById(id)
+
+	task, err := t.service.GetTaskById(id)
 	if err != nil {
 		return nil, err
 	}
+
 	response := tasks.GetTaskById200JSONResponse{
-		Id:     &title.ID,
-		Title:  &title.Title,
-		IsDone: &title.IsDone,
+		Id:     &task.ID,
+		Title:  &task.Title,
+		IsDone: &task.IsDone,
+		UserId: &task.UserID,
 	}
 
 	return response, nil
@@ -69,7 +100,7 @@ func (t *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 	if request.Params.IsDone != nil {
 		isDone = request.Params.IsDone
 	}
-	fmt.Println(isDone)
+
 	allTasks, err := t.service.GetTasks(isDone)
 	if err != nil {
 		return nil, err
@@ -82,6 +113,7 @@ func (t *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 			Id:     &tsk.ID,
 			Title:  &tsk.Title,
 			IsDone: &tsk.IsDone,
+			UserId: &tsk.UserID,
 		}
 		response = append(response, task)
 	}
@@ -92,22 +124,26 @@ func (t *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 // UpdateTaskCompletedById implements tasks.StrictServerInterface.
 func (t *TaskHandler) UpdateTaskCompletedById(ctx context.Context, request tasks.UpdateTaskCompletedByIdRequestObject) (tasks.UpdateTaskCompletedByIdResponseObject, error) {
 	id := request.Id
+
 	task, err := t.service.UpdateTaskCompletedById(id)
 	if err != nil {
 		return nil, err
 	}
+
 	response := tasks.UpdateTaskCompletedById200JSONResponse{
 		Id:     &task.ID,
 		Title:  &task.Title,
 		IsDone: &task.IsDone,
 	}
+
 	return response, nil
 }
 
 // UpdateTitleTaskById implements tasks.StrictServerInterface.
 func (t *TaskHandler) UpdateTitleTaskById(ctx context.Context, request tasks.UpdateTitleTaskByIdRequestObject) (tasks.UpdateTitleTaskByIdResponseObject, error) {
 	id := request.Id
-	body := taskservice.RequestTaskBody{
+
+	body := taskservice.UpdateTitleTaskRequest{
 		Title: *request.Body.Title,
 	}
 
@@ -115,10 +151,12 @@ func (t *TaskHandler) UpdateTitleTaskById(ctx context.Context, request tasks.Upd
 	if err != nil {
 		return nil, err
 	}
+
 	response := tasks.UpdateTitleTaskById200JSONResponse{
 		Id:     &task.ID,
 		Title:  &task.Title,
 		IsDone: &task.IsDone,
 	}
+
 	return response, nil
 }

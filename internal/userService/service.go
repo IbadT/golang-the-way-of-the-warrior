@@ -2,31 +2,47 @@ package userservice
 
 import (
 	"errors"
+	"fmt"
+	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type UserService interface {
 	CreateUser(user UserRequest) (User, error)
+
 	GetUsers() ([]User, error)
 	GetUserByID(id uuid.UUID) (User, error)
+	IncrementRequestsCount()
+
 	UpdateUser(id uuid.UUID, body UserRequest) (User, error)
 	UpdateUserPassword(id uuid.UUID, body UpdateUserPasswordRequest) (User, error)
+
 	DeleteUserByID(id uuid.UUID) error
 }
 
-// добавить mutex
-
 type userService struct {
-	repo UserRepository
+	repo            UserRepository
+	counterRequests uint16
+	mu              sync.Mutex
 }
 
-func NewUserService(r UserRepository) UserService {
+func NewUserService(r UserRepository) *userService {
 	return &userService{repo: r}
 }
 
+func (s *userService) IncrementRequestsCount() {
+	s.mu.Lock()
+	s.counterRequests++
+	count := s.counterRequests
+	s.mu.Unlock()
+	fmt.Printf("\x1b[34m[%s] Запросов обработано: %d\x1b[0m\n", time.Now().Format("15:04:05"), count)
+}
+
 func (s *userService) CreateUser(body UserRequest) (User, error) {
-	// првоеряем, зарегистрировал ли пользователь с таким email	!!!!!!!!
+	s.IncrementRequestsCount()
+
 	existingUser, err := s.repo.GetUserByEmail(body.Email)
 	if err == nil && existingUser.ID != uuid.Nil {
 		return User{}, errors.New("пользователь с таким email уже существует")
@@ -46,14 +62,20 @@ func (s *userService) CreateUser(body UserRequest) (User, error) {
 }
 
 func (s *userService) GetUsers() ([]User, error) {
+	s.IncrementRequestsCount()
+
 	return s.repo.GetUsers()
 }
 
 func (s *userService) GetUserByID(id uuid.UUID) (User, error) {
+	s.IncrementRequestsCount()
+
 	return s.repo.GetUserByID(id)
 }
 
 func (s *userService) UpdateUser(id uuid.UUID, body UserRequest) (User, error) {
+	s.IncrementRequestsCount()
+
 	user, err := s.repo.GetUserByID(id)
 	if err != nil {
 		return User{}, err
@@ -69,17 +91,23 @@ func (s *userService) UpdateUser(id uuid.UUID, body UserRequest) (User, error) {
 }
 
 func (s *userService) UpdateUserPassword(id uuid.UUID, body UpdateUserPasswordRequest) (User, error) {
+	s.IncrementRequestsCount()
+
 	user, err := s.repo.GetUserByID(id)
 	if err != nil {
 		return User{}, err
 	}
+
 	user.Password = body.Password
 	if err := s.repo.UpdateUser(user); err != nil {
 		return User{}, err
 	}
+
 	return user, nil
 }
 
 func (s *userService) DeleteUserByID(id uuid.UUID) error {
+	s.IncrementRequestsCount()
+
 	return s.repo.DeleteUserByID(id)
 }

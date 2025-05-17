@@ -33,6 +33,7 @@ func (u *UserHandler) CreateUser(ctx context.Context, request users.CreateUserRe
 		Email:    &createdUser.Email,
 		Password: &createdUser.Password,
 	}
+
 	return response, nil
 }
 
@@ -42,21 +43,25 @@ func (u *UserHandler) DeleteUserByID(ctx context.Context, request users.DeleteUs
 	if err := u.service.DeleteUserByID(id); err != nil {
 		return nil, err
 	}
+
 	return users.DeleteUserByID204Response{}, nil
 }
 
 // GetUserByID implements users.StrictServerInterface.
 func (u *UserHandler) GetUserByID(ctx context.Context, request users.GetUserByIDRequestObject) (users.GetUserByIDResponseObject, error) {
 	id := request.Id
+
 	user, err := u.service.GetUserByID(id)
 	if err != nil {
 		return nil, err
 	}
+
 	response := users.GetUserByID200JSONResponse{
 		Id:       &user.ID,
 		Email:    &user.Email,
 		Password: &user.Password,
 	}
+
 	return response, nil
 }
 
@@ -84,6 +89,7 @@ func (u *UserHandler) GetUsers(ctx context.Context, request users.GetUsersReques
 // UpdateUser implements users.StrictServerInterface.
 func (u *UserHandler) UpdateUser(ctx context.Context, request users.UpdateUserRequestObject) (users.UpdateUserResponseObject, error) {
 	id := request.Id
+
 	body := request.Body
 	userRequest := userservice.UserRequest{
 		Email:    *body.Email,
@@ -100,12 +106,14 @@ func (u *UserHandler) UpdateUser(ctx context.Context, request users.UpdateUserRe
 		Email:    &user.Email,
 		Password: &user.Password,
 	}
+
 	return response, nil
 }
 
 // UpdateUserPassword implements users.StrictServerInterface.
 func (u *UserHandler) UpdateUserPassword(ctx context.Context, request users.UpdateUserPasswordRequestObject) (users.UpdateUserPasswordResponseObject, error) {
 	id := request.Id
+
 	body := request.Body
 	updateUserPasswordData := userservice.UpdateUserPasswordRequest{
 		Password: *body.Password,

@@ -104,7 +104,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestTaskBody'
+              $ref: '#/components/schemas/RequestTitleUpdate'
       responses:
         '200':
           description: Task Was Updated
@@ -129,7 +129,30 @@ paths:
         '204':
           description: Task Was Successfully Deleted
       
-  
+
+  /tasks/{user_id}:
+    get:
+      summary: Get Tasks By User ID
+      operationId: GetTasksByUserID
+      tags:
+        - tasks
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully Got Tasks By User ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+
   /users:
     get:
       summary: Get All Users
@@ -275,8 +298,20 @@ components:
           type: string
         is_done:
           type: boolean
+        user_id:
+          type: string
+          format: uuid
     
     RequestTaskBody:
+      type: object
+      properties:
+        title:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+    
+    RequestTitleUpdate:
       type: object
       properties:
         title:

@@ -7,10 +7,10 @@ import (
 type TaskService interface {
 	CreateTask(body RequestTaskBody) (Task, error)
 	GetTasks(isDone *bool) ([]Task, error)
-	// GetTasksByCompleted()
+	GetTasksByUserID(user_id uuid.UUID) ([]Task, error)
 	GetTaskById(id uuid.UUID) (Task, error)
 	UpdateTaskCompletedById(id uuid.UUID) (Task, error)
-	UpdateTitleTaskById(id uuid.UUID, body RequestTaskBody) (Task, error)
+	UpdateTitleTaskById(id uuid.UUID, body UpdateTitleTaskRequest) (Task, error)
 	DeleteTaskById(id uuid.UUID) error
 }
 
@@ -27,6 +27,7 @@ func (s *taskService) CreateTask(body RequestTaskBody) (Task, error) {
 		ID:     uuid.New(),
 		Title:  body.Title,
 		IsDone: false,
+		UserID: body.UserID,
 	}
 
 	if err := s.repo.CreateTask(task); err != nil {
@@ -34,6 +35,10 @@ func (s *taskService) CreateTask(body RequestTaskBody) (Task, error) {
 	}
 
 	return task, nil
+}
+
+func (s *taskService) GetTasksByUserID(user_id uuid.UUID) ([]Task, error) {
+	return s.repo.GetTasksByUserID(user_id)
 }
 
 func (s *taskService) GetTasks(isDone *bool) ([]Task, error) {
@@ -59,7 +64,7 @@ func (s *taskService) UpdateTaskCompletedById(id uuid.UUID) (Task, error) {
 	return task, nil
 }
 
-func (s *taskService) UpdateTitleTaskById(id uuid.UUID, body RequestTaskBody) (Task, error) {
+func (s *taskService) UpdateTitleTaskById(id uuid.UUID, body UpdateTitleTaskRequest) (Task, error) {
 	task, err := s.repo.GetTaskById(id)
 	if err != nil {
 		return Task{}, nil

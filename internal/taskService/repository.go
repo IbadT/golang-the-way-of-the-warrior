@@ -11,6 +11,7 @@ type TaskRepository interface {
 	GetTasks() ([]Task, error)
 	GetTasksByCompleted(isDone bool) ([]Task, error)
 	GetTaskById(id uuid.UUID) (Task, error)
+	GetTasksByUserID(user_id uuid.UUID) ([]Task, error)
 
 	UpdateTask(task Task) error
 
@@ -27,7 +28,12 @@ func NewTaskRepository(db *gorm.DB) TaskRepository {
 
 func (r *taskRepository) CreateTask(task Task) error {
 	return r.db.Create(&task).Error
+}
 
+func (r *taskRepository) GetTasksByUserID(user_id uuid.UUID) ([]Task, error) {
+	var tasks []Task
+	err := r.db.Find(&tasks, "user_id = ?", user_id).Error
+	return tasks, err
 }
 
 func (r *taskRepository) GetTasks() ([]Task, error) {

@@ -6,6 +6,7 @@ type Task struct {
 	ID     uuid.UUID `json:"id" gorm:"primaryKey"`
 	Title  string    `json:"title"`
 	IsDone bool      `json:"is_done"`
+	UserID uuid.UUID `json:"user_id"`
 }
 
 type UpdateTitleTaskRequest struct {
@@ -13,5 +14,6 @@ type UpdateTitleTaskRequest struct {
 }
 
 type RequestTaskBody struct {
-	Title string `json:"title"`
+	Title  string    `json:"title"`
+	UserID uuid.UUID `json:"user_id"`
 }
