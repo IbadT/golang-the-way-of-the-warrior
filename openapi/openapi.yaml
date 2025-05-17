@@ -128,30 +128,6 @@ paths:
       responses:
         '204':
           description: Task Was Successfully Deleted
-      
-
-  /tasks/{user_id}:
-    get:
-      summary: Get Tasks By User ID
-      operationId: GetTasksByUserID
-      tags:
-        - tasks
-      parameters:
-        - in: path
-          name: user_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Successfully Got Tasks By User ID
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Task'
 
   /users:
     get:
@@ -189,6 +165,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
       
+  /users/{user_id}/tasks:
+    get:
+      summary: Get Tasks By User ID
+      operationId: GetTasksByUserID
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully Got Tasks By User ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+  
   /users/{id}:
     get:
       summary: Get User By ID

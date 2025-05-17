@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	taskservice "github.com/IbadT/golang-the-way-of-the-warrior.git/internal/taskService"
 	"github.com/google/uuid"
 )
 
@@ -14,6 +15,7 @@ type UserService interface {
 
 	GetUsers() ([]User, error)
 	GetUserByID(id uuid.UUID) (User, error)
+	GetTasksByUserID(user_id uuid.UUID) ([]taskservice.Task, error)
 	IncrementRequestsCount()
 
 	UpdateUser(id uuid.UUID, body UserRequest) (User, error)
@@ -59,6 +61,10 @@ func (s *userService) CreateUser(body UserRequest) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (s *userService) GetTasksByUserID(user_id uuid.UUID) ([]taskservice.Task, error) {
+	return s.repo.GetTasksByUserID(user_id)
 }
 
 func (s *userService) GetUsers() ([]User, error) {

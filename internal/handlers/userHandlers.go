@@ -11,6 +11,30 @@ type UserHandler struct {
 	service userservice.UserService
 }
 
+// GetTasksByUserID implements users.StrictServerInterface.
+func (u *UserHandler) GetTasksByUserID(ctx context.Context, request users.GetTasksByUserIDRequestObject) (users.GetTasksByUserIDResponseObject, error) {
+	userId := request.UserId
+
+	allTasks, err := u.service.GetTasksByUserID(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	response := users.GetTasksByUserID200JSONResponse{}
+
+	for _, tsk := range allTasks {
+		task := users.Task{
+			Id:     &tsk.ID,
+			Title:  &tsk.Title,
+			IsDone: &tsk.IsDone,
+			UserId: &tsk.UserID,
+		}
+		response = append(response, task)
+	}
+
+	return response, nil
+}
+
 func NewUserHandler(s userservice.UserService) *UserHandler {
 	return &UserHandler{service: s}
 }

@@ -39,30 +39,6 @@ func (t *TaskHandler) CreateTask(ctx context.Context, request tasks.CreateTaskRe
 	return response, nil
 }
 
-// GetTasksByUserID implements tasks.StrictServerInterface.
-func (t *TaskHandler) GetTasksByUserID(ctx context.Context, request tasks.GetTasksByUserIDRequestObject) (tasks.GetTasksByUserIDResponseObject, error) {
-	userId := request.UserId
-
-	allTasks, err := t.service.GetTasksByUserID(userId)
-	if err != nil {
-		return nil, err
-	}
-
-	response := tasks.GetTasksByUserID200JSONResponse{}
-
-	for _, tsk := range allTasks {
-		task := tasks.Task{
-			Id:     &tsk.ID,
-			Title:  &tsk.Title,
-			IsDone: &tsk.IsDone,
-			UserId: &tsk.UserID,
-		}
-		response = append(response, task)
-	}
-
-	return response, nil
-}
-
 // DeleteTaskById implements tasks.StrictServerInterface.
 func (t *TaskHandler) DeleteTaskById(ctx context.Context, request tasks.DeleteTaskByIdRequestObject) (tasks.DeleteTaskByIdResponseObject, error) {
 	id := request.Id
@@ -156,6 +132,7 @@ func (t *TaskHandler) UpdateTitleTaskById(ctx context.Context, request tasks.Upd
 		Id:     &task.ID,
 		Title:  &task.Title,
 		IsDone: &task.IsDone,
+		UserId: &task.UserID,
 	}
 
 	return response, nil
