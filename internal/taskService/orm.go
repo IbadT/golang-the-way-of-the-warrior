@@ -17,3 +17,7 @@ type RequestTaskBody struct {
 	Title  string    `json:"title"`
 	UserID uuid.UUID `json:"user_id"`
 }
+
+type RequestIsDoneBody struct {
+	IsDone bool `json:"is_done"`
+}

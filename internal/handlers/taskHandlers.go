@@ -100,8 +100,11 @@ func (t *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 // UpdateTaskCompletedById implements tasks.StrictServerInterface.
 func (t *TaskHandler) UpdateTaskCompletedById(ctx context.Context, request tasks.UpdateTaskCompletedByIdRequestObject) (tasks.UpdateTaskCompletedByIdResponseObject, error) {
 	id := request.Id
+	body := taskservice.RequestIsDoneBody{
+		IsDone: *request.Body.IsDone,
+	}
 
-	task, err := t.service.UpdateTaskCompletedById(id)
+	task, err := t.service.UpdateTaskCompletedById(id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +113,7 @@ func (t *TaskHandler) UpdateTaskCompletedById(ctx context.Context, request tasks
 		Id:     &task.ID,
 		Title:  &task.Title,
 		IsDone: &task.IsDone,
+		UserId: &task.UserID,
 	}
 
 	return response, nil

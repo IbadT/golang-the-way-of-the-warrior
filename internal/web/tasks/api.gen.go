@@ -15,6 +15,11 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+// RequestIsDoneBody defines model for RequestIsDoneBody.
+type RequestIsDoneBody struct {
+	IsDone *bool `json:"is_done,omitempty"`
+}
+
 // RequestTaskBody defines model for RequestTaskBody.
 type RequestTaskBody struct {
 	Title  *string             `json:"title,omitempty"`
@@ -41,6 +46,9 @@ type GetTasksParams struct {
 
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
 type CreateTaskJSONRequestBody = RequestTaskBody
+
+// UpdateTaskCompletedByIdJSONRequestBody defines body for UpdateTaskCompletedById for application/json ContentType.
+type UpdateTaskCompletedByIdJSONRequestBody = RequestIsDoneBody
 
 // UpdateTitleTaskByIdJSONRequestBody defines body for UpdateTitleTaskById for application/json ContentType.
 type UpdateTitleTaskByIdJSONRequestBody = RequestTitleUpdate
@@ -268,7 +276,8 @@ func (response GetTaskById200JSONResponse) VisitGetTaskByIdResponse(w http.Respo
 }
 
 type UpdateTaskCompletedByIdRequestObject struct {
-	Id openapi_types.UUID `json:"id"`
+	Id   openapi_types.UUID `json:"id"`
+	Body *UpdateTaskCompletedByIdJSONRequestBody
 }
 
 type UpdateTaskCompletedByIdResponseObject interface {
@@ -445,6 +454,12 @@ func (sh *strictHandler) UpdateTaskCompletedById(ctx echo.Context, id openapi_ty
 	var request UpdateTaskCompletedByIdRequestObject
 
 	request.Id = id
+
+	var body UpdateTaskCompletedByIdJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
 		return sh.ssi.UpdateTaskCompletedById(ctx.Request().Context(), request.(UpdateTaskCompletedByIdRequestObject))

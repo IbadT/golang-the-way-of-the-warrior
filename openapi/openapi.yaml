@@ -78,6 +78,12 @@ paths:
           schema:
             type: string
             format: uuid
+      requestBody:
+        description: IsDone Parameter to Update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestIsDoneBody'
       responses:
         '200':
           description: Updated Completed Task
@@ -315,6 +321,12 @@ components:
       properties:
         title:
           type: string
+    
+    RequestIsDoneBody:
+      type: object
+      properties:
+        is_done:
+          type: boolean
     
     User:
       type: object

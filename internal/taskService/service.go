@@ -9,7 +9,7 @@ type TaskService interface {
 	GetTasks(isDone *bool) ([]Task, error)
 	// GetTasksByUserID(user_id uuid.UUID) ([]Task, error)
 	GetTaskById(id uuid.UUID) (Task, error)
-	UpdateTaskCompletedById(id uuid.UUID) (Task, error)
+	UpdateTaskCompletedById(id uuid.UUID, body RequestIsDoneBody) (Task, error)
 	UpdateTitleTaskById(id uuid.UUID, body UpdateTitleTaskRequest) (Task, error)
 	DeleteTaskById(id uuid.UUID) error
 }
@@ -48,15 +48,17 @@ func (s *taskService) GetTaskById(id uuid.UUID) (Task, error) {
 	return s.repo.GetTaskById(id)
 }
 
-func (s *taskService) UpdateTaskCompletedById(id uuid.UUID) (Task, error) {
+func (s *taskService) UpdateTaskCompletedById(id uuid.UUID, body RequestIsDoneBody) (Task, error) {
 	task, err := s.repo.GetTaskById(id)
 	if err != nil {
 		return Task{}, err
 	}
-	task.IsDone = !task.IsDone
+
+	task.IsDone = body.IsDone
 	if err := s.repo.UpdateTask(task); err != nil {
 		return Task{}, err
 	}
+
 	return task, nil
 }
 
